@@ -1,2 +1,2 @@
-# campateca
-visor de campamentos de españa
+# Campateca
+Visor de campamentos de España
