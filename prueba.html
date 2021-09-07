@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Histogram widget as legend with CARTO.js v4</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" href="https://cartodb.com/assets/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700|Open+Sans:300,400,600" rel="stylesheet">
+
+    <!-- leaflet + jquery -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<link rel="stylesheet" href="./dist/MarkerCluster.css" />
+	<link rel="stylesheet" href="./dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <!-- <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css' rel='stylesheet' />
+    <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css' rel='stylesheet' />
+     -->
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body,
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            z-index: 0;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- map div -->
+    <div id="map"></div>
+
+    <script>
+        function main() {
+
+            // add map variable
+            const map = L.map('map', {
+                zoomControl: false,
+                center: [36, -3.7],
+                zoom: 6
+            });
+
+            // add Voyager Basemap
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '&copy;<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy;<a href="https://carto.com/attribution">CARTO</a>'
+            }).addTo(map);
+
+            console.log(map.getZoom());
+
+            // TO DO: show satellite map when above a certain zoom level
+            // Google Satellite basemap: http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}
+
+
+            // Data layer!
+            // First of all, the actual data - just some sample data
+            // TO DO: call data via API from Supabase
+            const geojson = {"type": "FeatureCollection", "features": [{"id": "0", "type": "Feature", "properties": {"index": 0, "latitude": 42.21521633, "longitude": 0.8022932186, "municipio": "Tremp"}, "geometry": {"type": "Point", "coordinates": [0.8022932186, 42.21521633]}}, {"id": "1", "type": "Feature", "properties": {"index": 1, "latitude": 42.43477996, "longitude": 1.667613861, "municipio": "Lles de Cerdanya"}, "geometry": {"type": "Point", "coordinates": [1.667613861, 42.43477996]}}, {"id": "2", "type": "Feature", "properties": {"index": 2, "latitude": 42.58783652, "longitude": 1.26861883, "municipio": "Esterri de Card\u00f3s"}, "geometry": {"type": "Point", "coordinates": [1.26861883, 42.58783652]}}, {"id": "3", "type": "Feature", "properties": {"index": 3, "latitude": 42.27074912, "longitude": 0.9809185419, "municipio": "La Pobla de Segur"}, "geometry": {"type": "Point", "coordinates": [0.9809185419, 42.27074912]}}, {"id": "4", "type": "Feature", "properties": {"index": 4, "latitude": 41.8681705, "longitude": 0.6096007932, "municipio": "Ivars de Noguera"}, "geometry": {"type": "Point", "coordinates": [0.6096007932, 41.8681705]}}, {"id": "5", "type": "Feature", "properties": {"index": 5, "latitude": 42.40847034, "longitude": 0.8865043087, "municipio": "Sarroca de Bellera"}, "geometry": {"type": "Point", "coordinates": [0.8865043087, 42.40847034]}}, {"id": "6", "type": "Feature", "properties": {"index": 6, "latitude": 43.30040955, "longitude": -7.356207791, "municipio": "A Pastoriza"}, "geometry": {"type": "Point", "coordinates": [-7.356207791, 43.30040955]}}, {"id": "7", "type": "Feature", "properties": {"index": 7, "latitude": 42.76171796, "longitude": -7.216646101, "municipio": "Triacastela"}, "geometry": {"type": "Point", "coordinates": [-7.216646101, 42.76171796]}}, {"id": "8", "type": "Feature", "properties": {"index": 8, "latitude": 42.89619374, "longitude": -7.87027035, "municipio": "Palas de Rei"}, "geometry": {"type": "Point", "coordinates": [-7.87027035, 42.89619374]}}, {"id": "9", "type": "Feature", "properties": {"index": 9, "latitude": 42.77195489, "longitude": -7.431829029, "municipio": "Sarria"}, "geometry": {"type": "Point", "coordinates": [-7.431829029, 42.77195489]}}, {"id": "10", "type": "Feature", "properties": {"index": 10, "latitude": 41.09195181, "longitude": -3.511395869, "municipio": "Montejo de la Sierra"}, "geometry": {"type": "Point", "coordinates": [-3.511395869, 41.09195181]}}, {"id": "11", "type": "Feature", "properties": {"index": 11, "latitude": 36.8633115, "longitude": -3.971137436, "municipio": "Canillas de Albaida"}, "geometry": {"type": "Point", "coordinates": [-3.971137436, 36.8633115]}}, {"id": "12", "type": "Feature", "properties": {"index": 12, "latitude": 39.55488004, "longitude": 3.235418316, "municipio": "Manacor"}, "geometry": {"type": "Point", "coordinates": [3.235418316, 39.55488004]}}, {"id": "13", "type": "Feature", "properties": {"index": 13, "latitude": 39.8423907, "longitude": 3.11182005, "municipio": "Alc\u00fadia"}, "geometry": {"type": "Point", "coordinates": [3.11182005, 39.8423907]}}, {"id": "14", "type": "Feature", "properties": {"index": 14, "latitude": 39.994753, "longitude": 3.893933711, "municipio": "Ciutadella de Menorca"}, "geometry": {"type": "Point", "coordinates": [3.893933711, 39.994753]}}, {"id": "15", "type": "Feature", "properties": {"index": 15, "latitude": 38.14929441, "longitude": -1.436403391, "municipio": "Ricote"}, "geometry": {"type": "Point", "coordinates": [-1.436403391, 38.14929441]}}, {"id": "16", "type": "Feature", "properties": {"index": 16, "latitude": 37.9215959, "longitude": -1.107219571, "municipio": "Murcia"}, "geometry": {"type": "Point", "coordinates": [-1.107219571, 37.9215959]}}, {"id": "17", "type": "Feature", "properties": {"index": 17, "latitude": 37.9215959, "longitude": -1.107219571, "municipio": "Murcia"}, "geometry": {"type": "Point", "coordinates": [-1.107219571, 37.9215959]}}, {"id": "18", "type": "Feature", "properties": {"index": 18, "latitude": 38.19890011, "longitude": -1.990932956, "municipio": "Moratalla"}, "geometry": {"type": "Point", "coordinates": [-1.990932956, 38.19890011]}}, {"id": "19", "type": "Feature", "properties": {"index": 19, "latitude": 38.19890011, "longitude": -1.990932956, "municipio": "Moratalla"}, "geometry": {"type": "Point", "coordinates": [-1.990932956, 38.19890011]}}, {"id": "20", "type": "Feature", "properties": {"index": 20, "latitude": 38.46910862, "longitude": -1.309740075, "municipio": "Jumilla"}, "geometry": {"type": "Point", "coordinates": [-1.309740075, 38.46910862]}}, {"id": "21", "type": "Feature", "properties": {"index": 21, "latitude": 38.07577138, "longitude": -1.746266745, "municipio": "Ceheg\u00edn"}, "geometry": {"type": "Point", "coordinates": [-1.746266745, 38.07577138]}}, {"id": "22", "type": "Feature", "properties": {"index": 22, "latitude": 37.63877919, "longitude": -0.9897526255, "municipio": "Cartagena"}, "geometry": {"type": "Point", "coordinates": [-0.9897526255, 37.63877919]}}, {"id": "23", "type": "Feature", "properties": {"index": 23, "latitude": 38.00688753, "longitude": -2.02658747, "municipio": "Caravaca de la Cruz"}, "geometry": {"type": "Point", "coordinates": [-2.02658747, 38.00688753]}}, {"id": "24", "type": "Feature", "properties": {"index": 24, "latitude": 37.82260486, "longitude": -1.387503663, "municipio": "Alhama de Murcia"}, "geometry": {"type": "Point", "coordinates": [-1.387503663, 37.82260486]}}, {"id": "25", "type": "Feature", "properties": {"index": 25, "latitude": 37.79107887, "longitude": -1.617106837, "municipio": "Aledo"}, "geometry": {"type": "Point", "coordinates": [-1.617106837, 37.79107887]}}, {"id": "26", "type": "Feature", "properties": {"index": 26, "latitude": 37.79107887, "longitude": -1.617106837, "municipio": "Aledo"}, "geometry": {"type": "Point", "coordinates": [-1.617106837, 37.79107887]}}, {"id": "27", "type": "Feature", "properties": {"index": 27, "latitude": 38.25343889, "longitude": -1.321299532, "municipio": "Abar\u00e1n"}, "geometry": {"type": "Point", "coordinates": [-1.321299532, 38.25343889]}}, {"id": "28", "type": "Feature", "properties": {"index": 28, "latitude": 42.26521142, "longitude": -6.958874449, "municipio": "A Veiga"}, "geometry": {"type": "Point", "coordinates": [-6.958874449, 42.26521142]}}, {"id": "29", "type": "Feature", "properties": {"index": 29, "latitude": 42.34347154, "longitude": -7.779892058, "municipio": "O Pereiro de Aguiar"}, "geometry": {"type": "Point", "coordinates": [-7.779892058, 42.34347154]}}, {"id": "30", "type": "Feature", "properties": {"index": 30, "latitude": 42.90854875, "longitude": -4.385229632, "municipio": "San Cebri\u00e1n de Mud\u00e1"}, "geometry": {"type": "Point", "coordinates": [-4.385229632, 42.90854875]}}, {"id": "31", "type": "Feature", "properties": {"index": 31, "latitude": 42.85175271, "longitude": -4.369331391, "municipio": "Salinas de Pisuerga"}, "geometry": {"type": "Point", "coordinates": [-4.369331391, 42.85175271]}}, {"id": "32", "type": "Feature", "properties": {"index": 32, "latitude": 42.89952365, "longitude": -4.782820394, "municipio": "Velilla del R\u00edo Carri\u00f3n"}, "geometry": {"type": "Point", "coordinates": [-4.782820394, 42.89952365]}}, {"id": "33", "type": "Feature", "properties": {"index": 33, "latitude": 42.56688348, "longitude": -8.584555702, "municipio": "Mora\u00f1a"}, "geometry": {"type": "Point", "coordinates": [-8.584555702, 42.56688348]}}, {"id": "34", "type": "Feature", "properties": {"index": 34, "latitude": 42.18596447, "longitude": -8.210272991, "municipio": "Crecente"}, "geometry": {"type": "Point", "coordinates": [-8.210272991, 42.18596447]}}, {"id": "35", "type": "Feature", "properties": {"index": 35, "latitude": 41.03733693, "longitude": -4.289993397, "municipio": "A\u00f1e"}, "geometry": {"type": "Point", "coordinates": [-4.289993397, 41.03733693]}}, {"id": "36", "type": "Feature", "properties": {"index": 36, "latitude": 41.05913755, "longitude": -4.278845316, "municipio": "Armu\u00f1a"}, "geometry": {"type": "Point", "coordinates": [-4.278845316, 41.05913755]}}, {"id": "37", "type": "Feature", "properties": {"index": 37, "latitude": 40.93253652, "longitude": -4.317674349, "municipio": "Juarros de Riomoros"}, "geometry": {"type": "Point", "coordinates": [-4.317674349, 40.93253652]}}, {"id": "38", "type": "Feature", "properties": {"index": 38, "latitude": 41.51044342, "longitude": -2.908939966, "municipio": "Bayubas de Abajo"}, "geometry": {"type": "Point", "coordinates": [-2.908939966, 41.51044342]}}, {"id": "39", "type": "Feature", "properties": {"index": 39, "latitude": 41.95294811, "longitude": -2.773789325, "municipio": "Vinuesa"}, "geometry": {"type": "Point", "coordinates": [-2.773789325, 41.95294811]}}, {"id": "40", "type": "Feature", "properties": {"index": 40, "latitude": 41.74110161, "longitude": -2.969469552, "municipio": "Talveila"}, "geometry": {"type": "Point", "coordinates": [-2.969469552, 41.74110161]}}, {"id": "41", "type": "Feature", "properties": {"index": 41, "latitude": 41.85216143, "longitude": -3.008022817, "municipio": "Navaleno"}, "geometry": {"type": "Point", "coordinates": [-3.008022817, 41.85216143]}}, {"id": "42", "type": "Feature", "properties": {"index": 42, "latitude": 41.95294811, "longitude": -2.773789325, "municipio": "Vinuesa"}, "geometry": {"type": "Point", "coordinates": [-2.773789325, 41.95294811]}}, {"id": "43", "type": "Feature", "properties": {"index": 43, "latitude": 41.58281862, "longitude": -2.644022719, "municipio": "Tardelcuende"}, "geometry": {"type": "Point", "coordinates": [-2.644022719, 41.58281862]}}, {"id": "44", "type": "Feature", "properties": {"index": 44, "latitude": 41.80045936, "longitude": -2.785890957, "municipio": "Abejar"}, "geometry": {"type": "Point", "coordinates": [-2.785890957, 41.80045936]}}, {"id": "45", "type": "Feature", "properties": {"index": 45, "latitude": 41.95294811, "longitude": -2.773789325, "municipio": "Vinuesa"}, "geometry": {"type": "Point", "coordinates": [-2.773789325, 41.95294811]}}, {"id": "46", "type": "Feature", "properties": {"index": 46, "latitude": 41.78176713, "longitude": -2.867883303, "municipio": "Cabrejas del Pinar"}, "geometry": {"type": "Point", "coordinates": [-2.867883303, 41.78176713]}}, {"id": "47", "type": "Feature", "properties": {"index": 47, "latitude": 41.85216143, "longitude": -3.008022817, "municipio": "Navaleno"}, "geometry": {"type": "Point", "coordinates": [-3.008022817, 41.85216143]}}, {"id": "48", "type": "Feature", "properties": {"index": 48, "latitude": 41.9724668, "longitude": -2.930866791, "municipio": "Duruelo de la Sierra"}, "geometry": {"type": "Point", "coordinates": [-2.930866791, 41.9724668]}}, {"id": "49", "type": "Feature", "properties": {"index": 49, "latitude": 41.75712563, "longitude": -1.878624929, "municipio": "Cueva de \u00c1greda"}, "geometry": {"type": "Point", "coordinates": [-1.878624929, 41.75712563]}}, {"id": "50", "type": "Feature", "properties": {"index": 50, "latitude": 41.80045936, "longitude": -2.785890957, "municipio": "Abejar"}, "geometry": {"type": "Point", "coordinates": [-2.785890957, 41.80045936]}}]};
+
+            // With a custom icon
+            const greenIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            // Instantiate the simple marker layer
+            const geojsonLayer = L.geoJSON(geojson, {
+                icon: greenIcon,
+                onEachFeature: function (f, l) {
+                    l.bindPopup('<pre>'+JSON.stringify(f.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
+                }
+            })
+
+            // Create a cluster group layer and wrap the simple layer
+            const clusterLayer = L.markerClusterGroup();
+            clusterLayer.addLayer(geojsonLayer);
+
+            map.addLayer(clusterLayer);
+
+        }
+
+        window.onload = main;
+
+        // main();
+
+    </script>
+
+</body>
+
+</html>
